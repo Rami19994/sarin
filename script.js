@@ -44,27 +44,29 @@ function getSettings() {
 }
 
 async function loadServerData() {
-  try {
-    const response = await fetch("api/menu.php", { cache: "no-store" });
-    if (!response.ok) return false;
-    const data = await response.json();
+  const sources = ["api/menu.php", "menu-data.json?v=20260520-1", "database/seed.json?v=20260520-1"];
 
-    if (data.settings) {
-      settings = data.settings;
-      localStorage.setItem(storageKeys.settings, JSON.stringify(data.settings));
-    }
-    if (Array.isArray(data.categories) && data.categories.length) {
+  for (const source of sources) {
+    try {
+      const response = await fetch(source, { cache: "no-store" });
+      if (!response.ok) continue;
+      const data = await response.json();
+
+      if (!Array.isArray(data.categories) || !data.categories.length || !Array.isArray(data.meals) || !data.meals.length) continue;
+
+      settings = { ...defaultSettings, ...(data.settings || {}) };
       categories = data.categories;
-      localStorage.setItem(storageKeys.categories, JSON.stringify(data.categories));
-    }
-    if (Array.isArray(data.meals) && data.meals.length) {
       menuItems = data.meals;
-      localStorage.setItem(storageKeys.meals, JSON.stringify(data.meals));
+      localStorage.setItem(storageKeys.settings, JSON.stringify(settings));
+      localStorage.setItem(storageKeys.categories, JSON.stringify(categories));
+      localStorage.setItem(storageKeys.meals, JSON.stringify(menuItems));
+      return true;
+    } catch {
+      // Vercel does not execute PHP, so fall back to the committed seed JSON.
     }
-    return true;
-  } catch {
-    return false;
   }
+
+  return false;
 }
 
 function formatPrice(price) {
