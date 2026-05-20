@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Sareen Restaurant logo">
+  <rect width="160" height="160" rx="38" fill="#050505"/>
+  <circle cx="80" cy="80" r="58" fill="none" stroke="#e52f38" stroke-width="6"/>
+  <path d="M45 94c24-5 47-23 70-55-6 39-27 66-63 82 13-18 14-19-7-27Z" fill="#e52f38"/>
+  <text x="80" y="128" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fff">SAREEN</text>
+</svg>

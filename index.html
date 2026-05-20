@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ku">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://translate.googleapis.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>Sareen Restaurant Menu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=Inter:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=20260520-7" />
+  </head>
+  <body>
+    <div class="app-shell">
+       <header class="hero">
+         <div class="hero-glow"></div>
+         <p class="eyebrow" data-i18n="eyebrow">مینیوی ڕێستورانت</p>
+        <h1 id="site-name">ڕێستورانتی سارین</h1>
+        <p class="hero-copy" data-i18n="heroCopy">خواردنی سەرەکی، شیرینی، خواردنەوە و پێشخواردنی تازە.</p>
+        <div class="hero-actions">
+          <div class="language-group" id="language-group" aria-label="Choose language">
+            <button class="language-toggle active" type="button" data-lang="ku">کوردی</button>
+            <button class="language-toggle" type="button" data-lang="ar">عربي</button>
+            <button class="language-toggle" type="button" data-lang="en">English</button>
+          </div>
+        </div>
+      </header>
+
+      <nav class="category-tabs" id="category-tabs" aria-label="Menu categories"></nav>
+
+      <section class="category-cards" id="category-cards" aria-label="Featured categories"></section>
+
+      <main class="menu-sections" id="menu-sections"></main>
+
+       <footer class="footer">
+         <strong id="footer-powered">Powered by Sarin Restaurant</strong>
+        <a href="https://www.sarin.com" target="_blank" rel="noreferrer">www.sarin.com</a>
+        <div class="socials" aria-label="Social media links">
+          <a href="#" aria-label="Instagram">IG</a>
+          <a href="#" aria-label="TikTok">TK</a>
+          <a href="#" aria-label="Facebook">FB</a>
+        </div>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="script.js?v=20260520-4"></script>
+  </body>
+</html>

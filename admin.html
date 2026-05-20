@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://translate.googleapis.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>Admin Dashboard | Sareen Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=Inter:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="admin.css?v=20260520-9" />
+  </head>
+  <body class="auth-locked">
+    <section class="login-screen" id="login-screen">
+      <form class="login-card" id="login-form">
+        <p>Secure Admin</p>
+        <h1>Admin Login</h1>
+        <label>
+          <span>Username</span>
+          <input id="login-username" type="text" autocomplete="username" required />
+        </label>
+        <label>
+          <span>Password</span>
+          <input id="login-password" type="password" autocomplete="current-password" required />
+        </label>
+        <button class="primary-button" type="submit">Login</button>
+        <small id="login-error" class="login-error" aria-live="polite"></small>
+      </form>
+    </section>
+
+    <header class="admin-header">
+      <div class="brand">
+        <div>
+          <p data-i18n="eyebrow">Admin Dashboard</p>
+          <h1 data-i18n="title">Menu Management</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="admin-language-group" id="admin-language-group" aria-label="Choose language">
+          <button class="active" type="button" data-admin-lang="ku">کوردی</button>
+          <button type="button" data-admin-lang="ar">عربي</button>
+          <button type="button" data-admin-lang="en">English</button>
+        </div>
+        <a href="index.html" data-i18n="viewMenu">View Menu</a>
+        <button id="logout-button" type="button" data-i18n="logout">Logout</button>
+      </div>
+    </header>
+
+    <main class="admin-shell">
+      <section class="panel form-panel settings-panel">
+        <div class="panel-heading">
+          <h2 data-i18n="settingsTitle">Website Settings</h2>
+        </div>
+
+        <form id="settings-form" class="form-grid">
+          <label>
+            <span data-i18n="restaurantName">Restaurant Name</span>
+            <input id="restaurant-name" type="text" required placeholder="Sareen Restaurant" />
+          </label>
+
+          <label>
+            <span data-i18n="restaurantNameAr">Restaurant Name Arabic</span>
+            <input id="restaurant-name-ar" type="text" placeholder="مطعم سارين" />
+          </label>
+
+          <label>
+            <span data-i18n="restaurantNameKu">Restaurant Name Kurdish</span>
+            <input id="restaurant-name-ku" type="text" placeholder="ڕێستورانتی سارین" />
+          </label>
+
+          <label class="wide file-field">
+            <span data-i18n="restaurantLogo">Restaurant Logo</span>
+            <input id="restaurant-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+          </label>
+
+          <div class="image-preview logo-image-preview wide">
+            <img id="restaurant-logo-preview" src="assets/images/logo.svg" alt="Restaurant logo preview" />
+            <button class="image-delete-button" id="remove-restaurant-logo" type="button" data-i18n="removeLogo">Delete logo only</button>
+          </div>
+
+          <button class="primary-button wide" type="submit" data-i18n="saveSettings">Save Website Settings</button>
+        </form>
+      </section>
+
+      <section class="panel form-panel">
+        <div class="panel-heading">
+          <h2 id="meal-form-title" data-i18n="mealFormTitle">Add New Meal</h2>
+          <button class="ghost-button" id="reset-meal-form" type="button" data-i18n="clear">Clear</button>
+        </div>
+
+        <form id="meal-form" class="form-grid">
+          <input type="hidden" id="meal-id" />
+
+          <label>
+            <span data-i18n="mealName">Meal Name Arabic</span>
+            <input id="meal-name" type="text" required placeholder="ستيك لحم فيليه" />
+          </label>
+
+          <label>
+            <span data-i18n="price">Price</span>
+            <input id="meal-price" type="text" required placeholder="25000" />
+          </label>
+
+          <label>
+            <span data-i18n="category">Category</span>
+            <select id="meal-category" required></select>
+          </label>
+
+          <label>
+            <span data-i18n="availability">Availability</span>
+            <select id="meal-availability">
+              <option value="true" data-i18n="available">Available</option>
+              <option value="false" data-i18n="notAvailable">Not Available</option>
+            </select>
+          </label>
+
+          <label class="wide">
+            <span data-i18n="description">Description Arabic optional</span>
+            <textarea id="meal-description" rows="3" placeholder="فيليه مشوي مع خضار وصوص خاص"></textarea>
+          </label>
+
+          <label class="wide file-field">
+            <span data-i18n="foodImage">Food Image</span>
+            <input id="meal-image" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+          </label>
+
+          <div class="image-preview meal-image-preview wide">
+            <img id="meal-preview" src="assets/images/foods/placeholder.svg" alt="Meal preview" />
+            <button class="image-delete-button" id="remove-meal-image" type="button" data-i18n="removeImage">Delete image only</button>
+          </div>
+
+          <button class="primary-button wide" type="submit" data-i18n="saveMeal">Save Meal</button>
+        </form>
+      </section>
+
+      <section class="panel form-panel">
+        <div class="panel-heading">
+          <h2 id="category-form-title" data-i18n="categoryFormTitle">Manage Categories</h2>
+          <button class="ghost-button" id="reset-category-form" type="button" data-i18n="clear">Clear</button>
+        </div>
+
+        <form id="category-form" class="form-grid">
+          <input type="hidden" id="category-original-id" />
+
+          <label>
+            <span data-i18n="categoryName">Category Name</span>
+            <input id="category-name" type="text" required placeholder="Main Dishes" />
+          </label>
+
+          <label>
+            <span data-i18n="categorySlug">Slug / ID</span>
+            <input id="category-id" type="text" placeholder="auto-generated" readonly />
+          </label>
+
+          <label>
+            <span data-i18n="displayOrder">Display Order</span>
+            <input id="category-order" type="number" min="1" step="1" value="1" required />
+          </label>
+
+          <label class="file-field">
+            <span data-i18n="categoryIcon">Category Icon</span>
+            <input id="category-icon" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+          </label>
+
+          <div class="image-preview wide">
+            <img id="category-preview" src="assets/images/categories/main-dishes.svg" alt="Category preview" />
+          </div>
+
+          <button class="primary-button wide" type="submit" data-i18n="saveCategory">Save Category</button>
+        </form>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-heading table-heading">
+          <h2 data-i18n="allMeals">All Meals</h2>
+          <div class="tools">
+            <input id="search-input" type="search" placeholder="Search meal" />
+            <select id="filter-category"></select>
+            <select id="sort-select">
+              <option value="name" data-i18n="sortName">Sort by name</option>
+              <option value="price" data-i18n="sortPrice">Sort by price</option>
+              <option value="category" data-i18n="sortCategory">Sort by category</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="image">Image</th>
+                <th data-i18n="mealName">Meal Name</th>
+                <th data-i18n="category">Category</th>
+                <th data-i18n="price">Price</th>
+                <th data-i18n="availability">Availability</th>
+                <th data-i18n="actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="meals-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-heading">
+          <h2 data-i18n="allCategories">All Categories</h2>
+        </div>
+        <div class="category-list" id="category-list"></div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="admin.js?v=20260520-9"></script>
+  </body>
+</html>
