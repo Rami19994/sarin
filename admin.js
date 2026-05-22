@@ -5,6 +5,8 @@ const storageKeys = {
   auth: "restaurantAdminAuthenticated",
   settings: "restaurantMenuSettings",
   translations: "restaurantTranslationCache",
+  pendingSync: "restaurantMenuPendingSync",
+  updatedAt: "restaurantMenuUpdatedAt",
 };
 const adminUser = "admin";
 const adminPasswordHash = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
@@ -317,14 +319,25 @@ function readData(key, fallback) {
   }
 }
 
-function saveData(sync = true) {
+function hasPendingLocalChanges() {
+  return localStorage.getItem(storageKeys.pendingSync) === "true";
+}
+
+async function saveData(sync = true) {
   localStorage.setItem(storageKeys.categories, JSON.stringify(categories));
   localStorage.setItem(storageKeys.meals, JSON.stringify(meals));
   localStorage.setItem(storageKeys.settings, JSON.stringify(settings));
-  if (sync) syncServerData();
+  localStorage.setItem(storageKeys.updatedAt, String(Date.now()));
+  if (!sync) return true;
+  localStorage.setItem(storageKeys.pendingSync, "true");
+  const synced = await syncServerData();
+  if (synced) localStorage.setItem(storageKeys.pendingSync, "false");
+  return synced;
 }
 
 async function loadServerData() {
+  if (hasPendingLocalChanges()) return false;
+
   try {
     const response = await fetch("api/menu.php", { cache: "no-store" });
     if (!response.ok) return false;
@@ -340,7 +353,7 @@ async function loadServerData() {
 }
 
 async function syncServerData() {
-  if (serverSyncRunning) return;
+  if (serverSyncRunning) return false;
   serverSyncRunning = true;
 
   try {
@@ -350,9 +363,9 @@ async function syncServerData() {
       body: JSON.stringify({ settings, categories, meals }),
     });
 
-    if (!response.ok) return;
+    if (!response.ok) return false;
     const data = await response.json();
-    if (!data.menu) return;
+    if (!data.menu) return false;
 
     settings = { ...defaultSettings, ...data.menu.settings };
     categories = data.menu.categories || [];
@@ -360,8 +373,11 @@ async function syncServerData() {
     localStorage.setItem(storageKeys.categories, JSON.stringify(categories));
     localStorage.setItem(storageKeys.meals, JSON.stringify(meals));
     localStorage.setItem(storageKeys.settings, JSON.stringify(settings));
+    localStorage.setItem(storageKeys.updatedAt, String(Date.now()));
+    return true;
   } catch {
     // Direct file opening still works with localStorage fallback.
+    return false;
   } finally {
     serverSyncRunning = false;
   }
@@ -829,7 +845,7 @@ document.querySelector("#meal-image").addEventListener("change", (event) => {
 });
 
 const removeMealImageButton = ensureImageDeleteButton("remove-meal-image", mealPreview, "removeImage", "meal-image-preview");
-if (removeMealImageButton) removeMealImageButton.addEventListener("click", () => {
+if (removeMealImageButton) removeMealImageButton.addEventListener("click", async () => {
   const id = document.querySelector("#meal-id").value;
   mealImageValue = defaultMealImage;
   mealPreview.src = defaultMealImage;
@@ -838,7 +854,7 @@ if (removeMealImageButton) removeMealImageButton.addEventListener("click", () =>
   if (id) {
     // Update only the image field for the selected meal; form edits stay untouched.
     meals = meals.map((item) => (String(item.id) === String(id) ? { ...item, image: defaultMealImage } : item));
-    saveData();
+    await saveData();
     renderMealsTable();
   }
 
@@ -860,16 +876,16 @@ document.querySelector("#restaurant-logo").addEventListener("change", (event) =>
 });
 
 const removeRestaurantLogoButton = ensureImageDeleteButton("remove-restaurant-logo", restaurantLogoPreview, "removeLogo", "logo-image-preview");
-if (removeRestaurantLogoButton) removeRestaurantLogoButton.addEventListener("click", () => {
+if (removeRestaurantLogoButton) removeRestaurantLogoButton.addEventListener("click", async () => {
   restaurantLogoValue = "";
   settings = { ...settings, logo: "" };
   setRestaurantLogoPreview(restaurantLogoValue);
   document.querySelector("#restaurant-logo").value = "";
-  saveData();
+  await saveData();
   showToast(getMessage("logoDeleted"));
 });
 
-settingsForm.addEventListener("submit", (event) => {
+settingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const name = document.querySelector("#restaurant-name").value.trim();
 
@@ -885,7 +901,7 @@ settingsForm.addEventListener("submit", (event) => {
     nameKu: document.querySelector("#restaurant-name-ku").value.trim(),
     logo: restaurantLogoValue,
   };
-  saveData();
+  await saveData();
   renderAll();
   showToast(getMessage("saved"));
 });
@@ -924,7 +940,7 @@ mealForm.addEventListener("submit", async (event) => {
   };
 
   meals = id ? meals.map((item) => (String(item.id) === String(id) ? meal : item)) : [meal, ...meals];
-  saveData();
+  await saveData();
   resetMealForm();
   renderAll();
   showToast(getMessage("saved"));
@@ -949,13 +965,13 @@ categoryForm.addEventListener("submit", async (event) => {
     meals = meals.map((meal) => (meal.category === originalId ? { ...meal, category: id } : meal));
   }
 
-  saveData();
+  await saveData();
   resetCategoryForm();
   renderAll();
   showToast(getMessage("saved"));
 });
 
-document.addEventListener("click", (event) => {
+document.addEventListener("click", async (event) => {
   const editMealButton = event.target.closest("[data-edit-meal]");
   const deleteMealButton = event.target.closest("[data-delete-meal]");
   const editCategoryButton = event.target.closest("[data-edit-category]");
@@ -979,7 +995,7 @@ document.addEventListener("click", (event) => {
 
   if (deleteMealButton && confirm(getMessage("confirmMealDelete"))) {
     meals = meals.filter((item) => String(item.id) !== String(deleteMealButton.dataset.deleteMeal));
-    saveData();
+    await saveData();
     renderAll();
     showToast(getMessage("deleted"));
   }
@@ -1000,7 +1016,7 @@ document.addEventListener("click", (event) => {
     const id = deleteCategoryButton.dataset.deleteCategory;
     categories = categories.filter((category) => category.id !== id);
     meals = meals.filter((meal) => meal.category !== id);
-    saveData();
+    await saveData();
     resetCategoryForm();
     renderAll();
     showToast(getMessage("deleted"));

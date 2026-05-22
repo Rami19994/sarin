@@ -55,6 +55,13 @@ function init_database(PDO $pdo): void
 
 function seed_database(PDO $pdo): void
 {
+    $hasData = (int)$pdo->query('SELECT COUNT(*) FROM settings')->fetchColumn()
+        + (int)$pdo->query('SELECT COUNT(*) FROM categories')->fetchColumn()
+        + (int)$pdo->query('SELECT COUNT(*) FROM meals')->fetchColumn();
+    if ($hasData > 0) {
+        return;
+    }
+
     $seed = json_decode(file_get_contents(SEED_PATH), true);
     if (!$seed) {
         return;
@@ -89,6 +96,23 @@ function seed_database(PDO $pdo): void
             $meal['descriptionKu'] ?? '',
             !empty($meal['isAvailable']) ? 1 : 0,
         ]);
+    }
+}
+
+function write_menu_exports(array $menu): void
+{
+    $json = json_encode($menu, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    if ($json === false) {
+        throw new RuntimeException('Unable to encode menu export');
+    }
+
+    $json .= PHP_EOL;
+    if (file_put_contents(SEED_PATH, $json, LOCK_EX) === false) {
+        throw new RuntimeException('Unable to write seed export');
+    }
+
+    if (file_put_contents(ROOT_DIR . '/menu-data.json', $json, LOCK_EX) === false) {
+        throw new RuntimeException('Unable to write public menu export');
     }
 }
 

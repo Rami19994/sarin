@@ -83,4 +83,11 @@ try {
     json_response(['ok' => false, 'error' => 'Save failed'], 500);
 }
 
-json_response(['ok' => true, 'menu' => menu_payload($pdo)]);
+$menu = menu_payload($pdo);
+try {
+    write_menu_exports($menu);
+} catch (Throwable $error) {
+    json_response(['ok' => false, 'error' => 'Export failed'], 500);
+}
+
+json_response(['ok' => true, 'menu' => $menu]);

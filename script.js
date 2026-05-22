@@ -1,9 +1,12 @@
 const imageBase = "assets/images";
+const assetVersion = "20260522-4";
 const storageKeys = {
   categories: "restaurantMenuCategories",
   meals: "restaurantMenuMeals",
   settings: "restaurantMenuSettings",
   translations: "restaurantTranslationCache",
+  pendingSync: "restaurantMenuPendingSync",
+  updatedAt: "restaurantMenuUpdatedAt",
 };
 const defaultSettings = {
   name: "Sareen Restaurant",
@@ -43,8 +46,16 @@ function getSettings() {
   return { ...defaultSettings, ...readSavedData(storageKeys.settings, defaultSettings) };
 }
 
+function versionedAsset(path) {
+  if (!path || /^(https?:|data:)/.test(path)) return path;
+  return `${path}${path.includes("?") ? "&" : "?"}v=${assetVersion}`;
+}
+
 async function loadServerData() {
-  const sources = ["api/menu.php", "menu-data.json?v=20260520-1", "database/seed.json?v=20260520-1"];
+  const hasPendingLocalChanges = localStorage.getItem(storageKeys.pendingSync) === "true";
+  if (hasPendingLocalChanges && localStorage.getItem(storageKeys.categories) && localStorage.getItem(storageKeys.meals)) return false;
+
+  const sources = ["api/menu.php", "menu-data.json?v=20260522-4", "database/seed.json?v=20260522-4"];
 
   for (const source of sources) {
     try {
@@ -283,7 +294,7 @@ function renderTabs() {
     .map(
       (category, index) => `
         <button class="tab ${index === 0 ? "active" : ""}" type="button" data-target="${category.id}">
-          <img src="${category.icon}" alt="" aria-hidden="true">
+          <img src="${versionedAsset(category.icon)}" alt="" aria-hidden="true">
           <span>${getText(category, "name")}</span>
         </button>
       `,
@@ -296,7 +307,7 @@ function renderCategoryCards() {
     .map(
       (category) => `
         <button class="category-card" type="button" data-target="${category.id}">
-          <img src="${category.icon}" alt="" aria-hidden="true">
+          <img src="${versionedAsset(category.icon)}" alt="" aria-hidden="true">
           <strong>${getText(category, "name")}</strong>
         </button>
       `,
@@ -329,7 +340,7 @@ function renderFoodCard(item) {
 
   return `
     <article class="food-card">
-      <img src="${item.image}" alt="${name}" loading="lazy">
+      <img src="${versionedAsset(item.image)}" alt="${name}" loading="lazy">
       <div class="food-info">
         <div class="food-copy">
           <h3>${name}</h3>
